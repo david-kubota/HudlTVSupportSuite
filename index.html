@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hudl Analytics Suite</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --primary: #f97316; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; }
+  h1 { font-size: 2.5rem; margin-bottom: 3rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; width: 100%; max-width: 800px; padding: 0 1rem; }
+  .card { 
+    background: var(--card); border: 1px solid #334155; border-radius: 1rem; padding: 2.5rem; text-align: center; 
+    text-decoration: none; color: white; transition: all 0.2s; cursor: pointer;
+  }
+  .card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 30px -10px rgba(249, 115, 22, 0.3); }
+  .icon { font-size: 4rem; margin-bottom: 1rem; display: block; }
+  .title { font-size: 1.5rem; font-weight: 700; display: block; margin-bottom: 0.5rem; }
+  .desc { color: #94a3b8; font-size: 0.9rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <h1>Hudl Analytics Suite</h1>
+  <div class="grid">
+    <a href="analytics.html" class="card">
+      <span class="icon">📡</span>
+      <span class="title">Livestream Analytics</span>
+      <span class="desc">Analyze viewership, unique plays, and device breakdowns for Hudl TV broadcasts.</span>
+    </a>
+    <a href="ppv.html" class="card">
+      <span class="icon">💰</span>
+      <span class="title">PPV Revenue</span>
+      <span class="desc">Track ticket sales, net revenue, and purchase trends for Pay-Per-View events.</span>
+    </a>
+  </div>
+</body>
+</html>
