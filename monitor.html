@@ -1,183 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hudl TV Multi-View Monitor v3</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hudl TV Multi-View Monitor v3.1</title>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; height: 100vh; overflow: hidden; margin: 0; }
-  .video-container { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
-  .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-  
-  /* Panel Styling */
-  .details-panel { background-color: #1e293b; border-top: 1px solid #334155; padding: 0.75rem; flex-grow: 1; overflow-y: auto; }
-  .field-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.025em; margin-bottom: 2px; }
-  .field-value { font-size: 13px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  
-  /* Status Colors */
-  .status-pill { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-  .status-streaming { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #166534; }
-  
-  select { background: #0f172a; border: 1px solid #334155; color: white; border-radius: 4px; padding: 4px 8px; width: 100%; font-size: 12px; cursor: pointer; }
-  select:focus { border-color: #f97316; outline: none; }
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #94a3b8; }
-</style>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; height: 100vh; overflow: hidden; margin: 0; }
+        .video-container { position: relative; width: 100%; padding-top: 56.25%; background: #000; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .details-panel { background-color: #1e293b; border-top: 1px solid #334155; padding: 0.75rem; flex-grow: 1; overflow-y: auto; }
+        .field-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.025em; margin-bottom: 2px; }
+        .field-value { font-size: 13px; color: #f1f5f9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-pill { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; border: 1px solid #166534; background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        select { background: #0f172a; border: 1px solid #334155; color: white; border-radius: 4px; padding: 4px 8px; width: 100%; font-size: 12px; cursor: pointer; }
+        #loading-overlay { position: fixed; inset: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 50; color: #94a3b8; }
+    </style>
 </head>
 <body>
 
-<div id="root"></div>
-<div id="loading">Initialzing Monitor...</div>
+    <div id="loading-overlay">Initializing Monitor...</div>
+    <div id="root"></div>
 
-<script type="text/babel">
-  const { useState, useEffect } = React;
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-  // --- SLOT COMPONENT ---
-  const Slot = ({ index }) => {
-    const [urlInput, setUrlInput] = useState("");
-    const [activeId, setActiveId] = useState(null);
-    const [quality, setQuality] = useState("");
+        const Icon = ({ type }) => {
+            if (type === 'external') return <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>;
+            if (type === 'monitor') return <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 21h6l-.75-4M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>;
+            return null;
+        };
 
-    const loadStream = (e) => {
-      e.preventDefault();
-      let id = urlInput.trim();
-      const match = urlInput.match(/\/embed\/(\d+)/);
-      if (match) id = match[1];
-      if (id && !isNaN(id)) setActiveId(id);
-    };
+        const Slot = ({ index }) => {
+            const [urlInput, setUrlInput] = useState("");
+            const [activeId, setActiveId] = useState(null);
+            const [quality, setQuality] = useState("");
 
-    if (activeId) {
-      return (
-        <div className="flex flex-col h-full bg-slate-900 border border-slate-700 rounded-lg overflow-hidden shadow-2xl">
-          {/* Header */}
-          <div className="bg-slate-800 px-3 py-1.5 flex justify-between items-center border-b border-slate-700">
-             <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Viewport {index + 1}</span>
-                <span className="status-pill status-streaming flex items-center gap-1">
-                   <span className="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse"></span> Streaming
-                </span>
-             </div>
-             <button onClick={() => {setActiveId(null); setUrlInput("");}} className="text-slate-500 hover:text-red-400 font-bold text-lg">&times;</button>
-          </div>
-          
-          {/* Player */}
-          <div className="video-container">
-            <iframe src={`https://vcloud.hudl.com/broadcast/embed/${activeId}?autoplay=1`} allow="autoplay; fullscreen"></iframe>
-          </div>
+            const loadStream = (e) => {
+                e.preventDefault();
+                let id = urlInput.trim();
+                const match = urlInput.match(/\/embed\/(\d+)/);
+                if (match) id = match[1];
+                if (id && !isNaN(id)) setActiveId(id);
+            };
 
-          {/* Details & Options Panel (The part you requested) */}
-          <div className="details-panel space-y-4">
-            
-            {/* 1. Generic Details */}
-            <div className="grid grid-cols-2 gap-4">
-               <div className="col-span-2">
-                  <div className="field-label">Broadcast Title</div>
-                  <div className="field-value font-bold text-orange-400">Varsity Matchup - Broadcast ID: {activeId}</div>
-               </div>
-               <div>
-                  <div className="field-label">Site / School</div>
-                  <div className="field-value text-slate-300">Lincoln East High School</div>
-               </div>
-               <div>
-                  <div className="field-label">Scheduled Date</div>
-                  <div className="field-value text-slate-300">{new Date().toLocaleDateString()} @ 7:00 PM</div>
-               </div>
-            </div>
+            if (activeId) {
+                return (
+                    <div className="flex flex-col h-full bg-slate-900 border border-slate-700 rounded-lg overflow-hidden shadow-2xl">
+                        <div className="bg-slate-800 px-3 py-1.5 flex justify-between items-center border-b border-slate-700">
+                            <div className="flex items-center gap-3">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">Viewport {index + 1}</span>
+                                <span className="status-pill flex items-center gap-1">
+                                    <span className="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse"></span> Streaming
+                                </span>
+                            </div>
+                            <button onClick={() => {setActiveId(null); setUrlInput("");}} className="text-slate-500 hover:text-red-400 font-bold text-lg">&times;</button>
+                        </div>
+                        
+                        <div className="video-container">
+                            <iframe src={`https://vcloud.hudl.com/broadcast/embed/${activeId}?autoplay=1`} allow="autoplay; fullscreen"></iframe>
+                        </div>
 
-            <hr className="border-slate-800" />
+                        <div className="details-panel space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2">
+                                    <div className="field-label">Broadcast Title</div>
+                                    <div className="field-value font-bold text-orange-400">Varsity Matchup - ID: {activeId}</div>
+                                </div>
+                                <div>
+                                    <div className="field-label">Site / School</div>
+                                    <div className="field-value text-slate-300">Lincoln East High School</div>
+                                </div>
+                                <div>
+                                    <div className="field-label">Scheduled Date</div>
+                                    <div className="field-value text-slate-300">02/16/2026 @ 7:00 PM</div>
+                                </div>
+                            </div>
 
-            {/* 2. Quality Dropdown & Details Button */}
-            <div className="grid grid-cols-2 gap-4">
-               <div>
-                  <div className="field-label">Quality Report</div>
-                  <select value={quality} onChange={(e) => setQuality(e.target.value)}>
-                    <option value="">Select Quality...</option>
-                    <option value="good">Overall Good</option>
-                    <option value="audio">Poor / No Audio</option>
-                    <option value="video">Poor / No Video</option>
-                    <option value="scoreboard">No Scoreboard</option>
-                    <option value="delayed">Delayed</option>
-                  </select>
-               </div>
-               <div className="flex flex-col justify-end">
-                  <a 
-                    href={`https://hudl.com/admin/broadcast/${activeId}`} 
-                    target="_blank" 
-                    className="bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-bold py-2 px-2 rounded text-center border border-slate-600 transition uppercase"
-                  >
-                    Open Details Page
-                  </a>
-               </div>
-            </div>
+                            <hr className="border-slate-800" />
 
-            {/* 3. Contact Details */}
-            <div className="bg-slate-950/50 p-2 rounded border border-slate-800">
-               <div className="field-label text-blue-400">Support Contact</div>
-               <div className="grid grid-cols-2 gap-2 mt-1">
-                  <div>
-                    <div className="text-[10px] text-slate-500 italic">Name</div>
-                    <div className="text-[12px]">John Smith</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-slate-500 italic">Phone</div>
-                    <div className="text-[12px] text-orange-300">555-0199</div>
-                  </div>
-                  <div className="col-span-2">
-                    <div className="text-[10px] text-slate-500 italic">Email</div>
-                    <div className="text-[12px] text-orange-300 truncate">jsmith@lincolneast.edu</div>
-                  </div>
-               </div>
-            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div className="field-label">Quality Report</div>
+                                    <select value={quality} onChange={(e) => setQuality(e.target.value)}>
+                                        <option value="">Select Quality...</option>
+                                        <option value="good">Overall Good</option>
+                                        <option value="audio">Poor / No Audio</option>
+                                        <option value="video">Poor / No Video</option>
+                                        <option value="scoreboard">No Scoreboard</option>
+                                        <option value="delayed">Delayed</option>
+                                    </select>
+                                </div>
+                                <div className="flex flex-col justify-end">
+                                    <a href={`https://hudl.com/admin/broadcast/${activeId}`} target="_blank" className="bg-slate-700 hover:bg-slate-600 text-white text-[11px] font-bold py-2 px-2 rounded text-center border border-slate-600 transition uppercase flex items-center justify-center gap-1">
+                                        Details Page <Icon type="external" />
+                                    </a>
+                                </div>
+                            </div>
 
-          </div>
-        </div>
-      );
-    }
+                            <div className="bg-slate-950/50 p-2 rounded border border-slate-800">
+                                <div className="field-label text-blue-400">Support Contact</div>
+                                <div className="grid grid-cols-2 gap-2 mt-1">
+                                    <div>
+                                        <div className="text-[10px] text-slate-500 italic">Name</div>
+                                        <div className="text-[12px]">John Smith</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] text-slate-500 italic">Phone</div>
+                                        <div className="text-[12px] text-orange-300">555-0199</div>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <div className="text-[10px] text-slate-500 italic">Email</div>
+                                        <div className="text-[12px] text-orange-300 truncate">jsmith@lincolneast.edu</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
-    return (
-      <div className="flex flex-col h-full bg-slate-800/20 border-2 border-slate-700 border-dashed rounded-lg items-center justify-center p-8 transition hover:bg-slate-800/40">
-        <form onSubmit={loadStream} className="w-full max-w-xs space-y-3">
-          <input 
-            type="text" 
-            placeholder="Broadcast ID or URL..." 
-            className="w-full bg-slate-900 border border-slate-600 text-white px-4 py-2 rounded text-sm text-center focus:border-orange-500 outline-none"
-            value={urlInput}
-            onChange={(e) => setUrlInput(e.target.value)}
-          />
-          <button 
-            type="submit" 
-            className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 rounded text-xs transition uppercase tracking-widest"
-          >
-            Load Viewport {index + 1}
-          </button>
-        </form>
-      </div>
-    );
-  };
+            return (
+                <div className="flex flex-col h-full bg-slate-800/20 border-2 border-slate-700 border-dashed rounded-lg items-center justify-center p-8 transition hover:bg-slate-800/40 text-center">
+                    <div className="text-slate-700 mb-4 text-center flex justify-center"><Icon type="monitor" /></div>
+                    <form onSubmit={loadStream} className="w-full max-w-xs space-y-3">
+                        <input 
+                            type="text" 
+                            placeholder="Broadcast ID or URL..." 
+                            className="w-full bg-slate-900 border border-slate-600 text-white px-4 py-2 rounded text-sm text-center focus:border-orange-500 outline-none"
+                            value={urlInput}
+                            onChange={(e) => setUrlInput(e.target.value)}
+                        />
+                        <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 rounded text-xs transition uppercase tracking-widest">
+                            Load Viewport {index + 1}
+                        </button>
+                    </form>
+                </div>
+            );
+        };
 
-  const App = () => {
-    useEffect(() => {
-      const loader = document.getElementById('loading');
-      if(loader) loader.style.display = 'none';
-    }, []);
+        const App = () => {
+            useEffect(() => {
+                const overlay = document.getElementById('loading-overlay');
+                if (overlay) overlay.style.display = 'none';
+            }, []);
 
-    return (
-      <div className="flex flex-col h-screen">
-        <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-6 justify-between flex-shrink-0">
-          <div className="font-bold text-sm tracking-tight"><span className="text-orange-500">HUDL TV</span> MULTI-VIEW MONITOR</div>
-          <a href="index.html" className="text-xs text-slate-400 hover:text-white transition">Back to Menu</a>
-        </div>
-        <div className="flex-1 p-3 grid grid-cols-2 grid-rows-2 gap-3 min-h-0">
-          <Slot index={0} /><Slot index={1} /><Slot index={2} /><Slot index={3} />
-        </div>
-      </div>
-    );
-  };
+            return (
+                <div className="flex flex-col h-screen">
+                    <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-6 justify-between flex-shrink-0">
+                        <div className="font-bold text-sm tracking-tight"><span className="text-orange-500">HUDL TV</span> MONITOR</div>
+                        <a href="index.html" className="text-xs text-slate-400 hover:text-white transition">Back to Menu</a>
+                    </div>
+                    <div className="flex-1 p-3 grid grid-cols-2 grid-rows-2 gap-3 min-h-0">
+                        <Slot index={0} /><Slot index={1} /><Slot index={2} /><Slot index={3} />
+                    </div>
+                </div>
+            );
+        };
 
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(<App />);
-</script>
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
