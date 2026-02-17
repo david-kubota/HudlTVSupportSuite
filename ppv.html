@@ -12,14 +12,31 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <style>
-  :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --muted: #94a3b8; --green: #10b981; --border: #334155; --blue: #3b82f6; }
+  :root { 
+    --bg: #0f172a; 
+    --card: #1e293b; 
+    --text: #f8fafc; 
+    --muted: #94a3b8; 
+    --green: #10b981; 
+    --border: #334155; 
+    --blue: #3b82f6;
+  }
   * { box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 2rem; }
   .container { max-width: 1400px; margin: 0 auto; }
   .header { display: flex; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
   .card { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; }
-  .upload-box { border: 2px dashed var(--border); padding: 5rem; text-align: center; border-radius: 1rem; cursor: pointer; background: var(--card); margin-top: 2rem; }
+  
+  /* Upload Box Styles */
+  .upload-box { border: 2px dashed var(--border); padding: 5rem; text-align: center; border-radius: 1rem; cursor: pointer; background: var(--card); margin-top: 1rem; transition: all 0.2s; }
   .upload-box:hover { border-color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  
+  /* Tooltip Box Styles */
+  .help-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; display: flex; align-items: flex-start; gap: 0.75rem; }
+  .help-box-icon { font-size: 1.25rem; line-height: 1; }
+  .help-link { color: var(--blue); text-decoration: none; font-size: 0.8rem; font-weight: 600; }
+  .help-link:hover { text-decoration: underline; }
+
   .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
   table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
@@ -28,12 +45,6 @@
   @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
   .back-link { text-decoration: none; color: var(--muted); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
   .back-link:hover { color: #fff; }
-  
-  /* Help Tooltip Styling */
-  .help-box { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; display: flex; align-items: flex-start; gap: 0.75rem; }
-  .help-box i { font-style: normal; font-size: 1.25rem; }
-  .help-link { color: var(--blue); text-decoration: none; font-size: 0.8rem; font-weight: 500; }
-  .help-link:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -42,7 +53,25 @@
 <script type="text/babel">
   const { useState, useMemo } = React;
   const { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+  
   const formatCurrency = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+
+  const HelpBox = () => (
+    <div className="help-box">
+      <span className="help-box-icon">ℹ️</span>
+      <div>
+        <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: 600, color: '#bfdbfe' }}>Need help exporting your data?</p>
+        <a 
+          href="https://support.hudl.com/s/article/viewing-purchase-history-hudl-tv?language=en_US#hudltvaccesspasses:~:text=WIMU-,Preferred%20Language,Access%20Passes,-Log%20in%20to" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="help-link"
+        >
+          Read the Hudl Support Article →
+        </a>
+      </div>
+    </div>
+  );
 
   const App = () => {
     const [data, setData] = useState(null);
@@ -56,7 +85,7 @@
         dynamicTyping: true,
         complete: (results) => {
           const processed = results.data
-            .filter(r => r['Date Captured'] && r['Status'] === 'Captured')
+            .filter(r => r['Date Captured'] && r['Status'] === 'Captured') 
             .map(row => ({
               date: new Date(row['Date Captured']),
               net: row['NET'] || 0,
@@ -74,9 +103,11 @@
 
     const stats = useMemo(() => {
       if (!data || data.length === 0) return null;
+      
       const totalNet = data.reduce((acc, r) => acc + r.net, 0);
       const totalGross = data.reduce((acc, r) => acc + r.gross, 0);
       const totalOrders = data.length;
+      
       const timelineMap = {};
       data.forEach(d => {
         const day = d.date.toLocaleDateString();
@@ -85,35 +116,30 @@
         timelineMap[day].gross += d.gross;
       });
       const timeline = Object.values(timelineMap).sort((a,b) => a.time - b.time);
+
       const sportMap = {};
       data.forEach(d => {
         if(!sportMap[d.sport]) sportMap[d.sport] = { name: d.sport, value: 0 };
         sportMap[d.sport].value += d.net;
       });
       const topSports = Object.values(sportMap).sort((a,b) => b.value - a.value).slice(0, 5);
+
       return { totalNet, totalGross, totalOrders, timeline, topSports };
     }, [data]);
 
     if (!data) {
       return (
-        <div className="container" style={{marginTop: '5vh'}}>
+        <div className="container">
           <a href="index.html" className="back-link">← Back to Menu</a>
+          <h1 style={{ marginBottom: '1.5rem' }}>PPV Revenue Analytics</h1>
           
-          <div className="help-box">
-            <i>ℹ️</i>
-            <div>
-              <div style={{fontSize: '0.9rem', fontWeight: 600, color: '#bfdbfe'}}>Need help exporting your data?</div>
-              <a href="https://support.hudl.com/s/article/viewing-purchase-history-hudl-tv?language=en_US#hudltvaccesspasses:~:text=WIMU-,Preferred%20Language,Access%20Passes,-Log%20in%20to" target="_blank" className="help-link">
-                Read the Hudl Support Article →
-              </a>
-            </div>
-          </div>
+          <HelpBox />
 
           <label className="upload-box" style={{display:'block'}}>
             <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
             <div style={{fontSize:'3rem', marginBottom:'1rem'}}>💰</div>
             <h2>Upload PPV Report</h2>
-            <div style={{color:'var(--muted)'}}>Supports standard Finance Export CSV</div>
+            <div style={{color:'var(--muted)'}}>Supports standard Finance Export CSV (Purchase History)</div>
           </label>
         </div>
       );
@@ -128,6 +154,8 @@
           </div>
           <button onClick={() => setData(null)} style={{background:'transparent', border:'1px solid #334155', color:'#fff', padding:'0.5rem 1rem', borderRadius:'4px', cursor:'pointer'}}>Upload New</button>
         </div>
+
+        <HelpBox />
 
         <div className="grid-4">
           <div className="card">
@@ -199,7 +227,7 @@
                   <tr key={i}>
                     <td>{row.date.toLocaleDateString()} {row.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
                     <td>{row.site}</td>
-                    <td title={row.desc}>{row.desc.substring(0, 40)}...</td>
+                    <td title={row.desc}>{row.desc ? row.desc.substring(0, 40) + '...' : '---'}</td>
                     <td>{row.sport}</td>
                     <td style={{textAlign:'right', color:'#10b981', fontWeight:'bold'}}>{formatCurrency(row.net)}</td>
                   </tr>
@@ -208,6 +236,7 @@
             </table>
           </div>
         </div>
+
       </div>
     );
   };
