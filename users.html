@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Users | Support Suite</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background-color: #0f172a; color: #f8fafc; font-family: ui-sans-serif, system-ui, sans-serif; }
+  .card { background-color: #1e293b; border: 1px solid #334155; }
+  input, select { background: #0f172a; border: 1px solid #334155; color: white; }
+  tr:hover { background-color: rgba(255,255,255,0.02); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const { useState } = React;
+
+  const App = () => {
+    const [view, setView] = useState('list'); // 'list' or 'create'
+    const [users, setUsers] = useState([
+      { id: 1, name: "Troy Comeau", email: "tcomeau@pittstate.edu", role: "Site Admin" },
+      { id: 2, name: "Kerry Stadler", email: "kstadler@pittstate.edu", role: "Contributor" },
+      { id: 3, name: "Don Vieth", email: "vieth@nsuok.edu", role: "Contributor" },
+      { id: 4, name: "Kregg Matthews", email: "kmatthews23@uco.edu", role: "Site Admin" }
+    ]);
+
+    const removeUser = (id) => {
+      if(confirm("Are you sure you want to remove this user? They will immediately lose access to the Hudl Admin console.")) {
+        setUsers(users.filter(u => u.id !== id));
+      }
+    };
+
+    const handleInvite = (e) => {
+      e.preventDefault();
+      alert("Invitation Sent! The user will receive an automated email with a secure link to set up their password.");
+      setView('list');
+    };
+
+    return (
+      <div className="p-8 max-w-5xl mx-auto">
+        {/* Breadcrumbs */}
+        <nav className="text-xs text-slate-500 mb-4 flex gap-2">
+          <a href="index.html" className="hover:text-white">Home</a> / 
+          <span>Account</span> / 
+          <span className="text-slate-300">Manage Users</span>
+        </nav>
+
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">User <span className="text-orange-500">Management</span></h1>
+            <p className="text-slate-400 text-sm">Control who can produce broadcasts and manage your site.</p>
+          </div>
+          {view === 'list' ? (
+            <button onClick={() => setView('create')} className="bg-orange-600 hover:bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm transition">
+              + Add New User
+            </button>
+          ) : (
+            <button onClick={() => setView('list')} className="text-slate-400 hover:text-white text-sm">
+              Cancel & Return
+            </button>
+          )}
+        </div>
+
+        {view === 'list' ? (
+          /* USER LIST VIEW */
+          <div className="card rounded-xl overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-800/50 text-slate-400 uppercase text-[10px] font-bold tracking-wider">
+                <tr>
+                  <th className="p-4">Full Name</th>
+                  <th className="p-4">Email Address</th>
+                  <th className="p-4">Role</th>
+                  <th className="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-700/50">
+                {users.map(user => (
+                  <tr key={user.id}>
+                    <td className="p-4 font-semibold">{user.name}</td>
+                    <td className="p-4 text-slate-400">{user.email}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${user.role === 'Site Admin' ? 'bg-blue-900/30 text-blue-400 border border-blue-800' : 'bg-slate-700/30 text-slate-400 border border-slate-600'}`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button onClick={() => removeUser(user.id)} className="text-red-500 hover:text-red-400 font-bold text-xs uppercase tracking-tight">Remove Access</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          /* CREATE USER VIEW */
+          <div className="max-w-xl">
+            <div className="card p-8 rounded-xl shadow-2xl">
+              <h2 className="text-lg font-bold mb-6">Invite a New Member</h2>
+              <form onSubmit={handleInvite} className="space-y-6">
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Full Name</label>
+                  <input type="text" required className="w-full p-3 rounded-lg focus:outline-none focus:border-orange-500 transition" placeholder="e.g. Jane Doe" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
+                  <input type="email" required className="w-full p-3 rounded-lg focus:outline-none focus:border-orange-500 transition" placeholder="jane.doe@school.edu" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Assign Role</label>
+                  <select className="w-full p-3 rounded-lg focus:outline-none focus:border-orange-500 transition">
+                    <option value="contributor">Contributor (Can produce and update broadcasts)</option>
+                    <option value="siteadmin">Site Admin (Full access to site settings & users)</option>
+                  </select>
+                </div>
+                
+                <div className="bg-blue-900/20 border border-blue-800 p-4 rounded-lg flex gap-3">
+                  <span className="text-xl">✉️</span>
+                  <p className="text-xs text-blue-200 leading-relaxed">
+                    <strong>Note:</strong> Clicking the button below will trigger an <strong>automated invitation email</strong>. The user will remain "Pending" until they accept the invite and set their password.
+                  </p>
+                </div>
+
+                <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 text-white py-4 rounded-lg font-bold transition shadow-lg shadow-orange-900/20">
+                  Send Invitation Email
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<App />);
+</script>
+</body>
+</html>
