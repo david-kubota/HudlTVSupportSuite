@@ -3,188 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hudl TV Multi-View Monitor v4</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
+    <title>Hudl TV Multi-View Monitor v5</title>
     <style>
-        body { background-color: #020617; color: #f8fafc; margin: 0; height: 100vh; overflow: hidden; }
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; height: calc(100vh - 48px); padding: 12px; }
-        .viewport-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
+        :root { --bg: #020617; --card: #1e293b; --text: #f8fafc; --muted: #94a3b8; --primary: #f97316; }
+        body { background-color: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; height: 100vh; overflow: hidden; }
         
-        /* Video Container at Top */
-        .video-box { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; flex-shrink: 0; }
-        .video-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
-
-        /* Data Section Below Video */
-        .data-section { flex: 1; padding: 12px; overflow-y: auto; background: #0f172a; }
+        .top-bar { height: 48px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; height: calc(100vh - 48px); padding: 12px; box-sizing: border-box; }
         
-        .label { font-size: 10px; color: #94a3b8; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
-        .value { font-size: 13px; color: #f8fafc; margin-bottom: 8px; }
+        .viewport { background: var(--card); border: 1px solid #334155; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .video-box { width: 100%; aspect-ratio: 16/9; background: #000; flex-shrink: 0; }
+        .video-box iframe { width: 100%; height: 100%; border: none; }
         
-        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .data-section { flex: 1; padding: 12px; overflow-y: auto; background: #0f172a; border-top: 1px solid #334155; }
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
         
-        select { background: #1e293b; border: 1px solid #334155; color: white; border-radius: 4px; padding: 6px; width: 100%; font-size: 12px; }
+        .field { margin-bottom: 10px; }
+        .label { font-size: 10px; font-weight: bold; color: var(--muted); text-transform: uppercase; margin-bottom: 2px; }
+        .value { font-size: 13px; color: #fff; }
         
-        #init-loader { position: fixed; inset: 0; background: #020617; display: flex; align-items: center; justify-content: center; z-index: 100; font-family: sans-serif; color: #64748b; }
+        .status-badge { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #166534; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; display: inline-block; }
+        
+        input, select { background: #1e293b; border: 1px solid #334155; color: white; padding: 8px; border-radius: 4px; width: 100%; margin-top: 5px; box-sizing: border-box; }
+        button { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        .details-btn { background: #334155; color: #fff; text-decoration: none; padding: 8px; display: block; text-align: center; border-radius: 4px; font-size: 11px; font-weight: bold; margin-top: 10px; border: 1px solid #475569; }
+        
+        .close-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.5); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; z-index: 10; font-weight: bold; }
+        .contact-box { background: rgba(15, 23, 42, 0.5); border: 1px solid #334155; padding: 10px; border-radius: 4px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="init-loader">Initializing Stacked Multi-View...</div>
-    <div id="root"></div>
+    <div class="top-bar">
+        <div style="font-weight: bold; font-size: 14px;">HUDL TV MONITOR <span style="color:var(--primary); font-size: 10px; margin-left: 10px;">V5 (NO-BABEL)</span></div>
+        <a href="index.html" style="color: var(--muted); text-decoration: none; font-size: 12px;">Back to Menu</a>
+    </div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    <div class="grid-container" id="grid">
+        </div>
 
-        const Viewport = ({ index }) => {
-            const [idInput, setIdInput] = useState("");
-            const [activeId, setActiveId] = useState(null);
-            const [quality, setQuality] = useState("");
+    <script>
+        // Data Store
+        const states = [
+            { id: null, quality: '' },
+            { id: null, quality: '' },
+            { id: null, quality: '' },
+            { id: null, quality: '' }
+        ];
 
-            const handleLoad = (e) => {
-                e.preventDefault();
-                let id = idInput.trim();
-                const match = idInput.match(/\/embed\/(\d+)/);
-                if (match) id = match[1];
-                if (id && !isNaN(id)) setActiveId(id);
-            };
+        function updateSlot(index, id) {
+            states[index].id = id;
+            render();
+        }
 
-            // Viewport Setup: Empty State
-            if (!activeId) {
-                return (
-                    <div className="viewport-card items-center justify-center p-8 bg-slate-900/50 border-dashed border-2 border-slate-800">
-                        <form onSubmit={handleLoad} className="w-full max-w-xs space-y-4">
-                            <div className="text-slate-500 text-xs font-bold uppercase mb-2 text-center">Viewport {index + 1}</div>
-                            <input 
-                                type="text" 
-                                placeholder="Paste Broadcast ID or URL" 
-                                className="w-full bg-slate-950 border border-slate-700 p-2 rounded text-sm text-center focus:border-orange-500 outline-none"
-                                value={idInput}
-                                onChange={(e) => setIdInput(e.target.value)}
-                            />
-                            <button className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 rounded text-xs uppercase tracking-widest transition">
-                                Start Monitoring
-                            </button>
-                        </form>
-                    </div>
-                );
-            }
+        function clearSlot(index) {
+            states[index].id = null;
+            render();
+        }
 
-            // Viewport Setup: Active Monitoring (Stacked Layout)
-            return (
-                <div className="viewport-card shadow-2xl">
-                    {/* Header Bar */}
-                    <div className="bg-slate-800 px-3 py-2 border-b border-slate-700 flex justify-between items-center h-10 flex-shrink-0">
-                        <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-black text-slate-400">V{index + 1}</span>
-                            <div className="status-badge">
-                                <span className="h-1.5 w-1.5 bg-green-500 rounded-full animate-pulse"></span> STREAMING
+        function render() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            states.forEach((state, index) => {
+                const viewport = document.createElement('div');
+                viewport.className = 'viewport';
+
+                if (!state.id) {
+                    // --- EMPTY STATE ---
+                    viewport.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 10px; font-weight: bold; color: #475569; margin-bottom: 10px;">VIEWPORT ${index + 1}</div>
+                            <div style="padding: 20px;">
+                                <input type="text" id="input-${index}" placeholder="Enter Broadcast ID">
+                                <button onclick="const val = document.getElementById('input-${index}').value; if(val) updateSlot(${index}, val)">LOAD BROADCAST</button>
                             </div>
                         </div>
-                        <button onClick={() => {setActiveId(null); setIdInput("");}} className="text-slate-400 hover:text-red-500 font-bold text-xl">&times;</button>
-                    </div>
-
-                    {/* VIDEO PLAYER (TOP) */}
-                    <div className="video-box">
-                        <iframe src={`https://vcloud.hudl.com/broadcast/embed/${activeId}?autoplay=1`} allow="autoplay; fullscreen"></iframe>
-                    </div>
-
-                    {/* DATA FIELDS (BOTTOM) */}
-                    <div className="data-section">
-                        <div className="grid grid-cols-2 gap-4">
-                            
-                            {/* Generic Details */}
-                            <div className="col-span-2">
-                                <div className="label">Broadcast Title</div>
-                                <div className="value font-bold text-orange-400">Varsity Matchup - ID: {activeId}</div>
+                    `;
+                } else {
+                    // --- ACTIVE MONITOR STATE ---
+                    viewport.innerHTML = `
+                        <button class="close-btn" onclick="clearSlot(${index})">&times;</button>
+                        <div class="video-box">
+                            <iframe src="https://vcloud.hudl.com/broadcast/embed/${state.id}?autoplay=1" allow="autoplay; fullscreen"></iframe>
+                        </div>
+                        <div class="data-section">
+                            <div class="field">
+                                <div class="status-badge">STREAMING</div>
                             </div>
-
-                            <div>
-                                <div className="label">Site / School</div>
-                                <div className="value">Lincoln East High School</div>
+                            <div class="field">
+                                <div class="label">Broadcast Title</div>
+                                <div class="value" style="color: var(--primary); font-weight: bold;">Varsity Matchup - ID: ${state.id}</div>
                             </div>
-                            <div>
-                                <div className="label">Scheduled Date</div>
-                                <div className="value">02/16/2026 @ 7:00 PM</div>
-                            </div>
-
-                            {/* Contact Details */}
-                            <div className="col-span-2 bg-slate-900 border border-slate-800 p-3 rounded mt-2">
-                                <div className="label text-blue-400 mb-2">Primary Contact Details</div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <div className="text-[10px] text-slate-500 italic">Name</div>
-                                        <div className="text-xs">John Smith</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-[10px] text-slate-500 italic">Phone</div>
-                                        <div className="text-xs text-orange-200">555-0199</div>
-                                    </div>
-                                    <div className="col-span-2">
-                                        <div className="text-[10px] text-slate-500 italic">Email</div>
-                                        <div className="text-xs text-orange-200">jsmith@lincolneast.edu</div>
-                                    </div>
+                            <div style="display: flex; gap: 10px;">
+                                <div class="field" style="flex: 1;">
+                                    <div class="label">Site / School</div>
+                                    <div class="value">Lincoln East High School</div>
+                                </div>
+                                <div class="field" style="flex: 1;">
+                                    <div class="label">Scheduled</div>
+                                    <div class="value">02/16/2026 7PM</div>
                                 </div>
                             </div>
 
-                            {/* Quality Dropdown */}
-                            <div>
-                                <div className="label">Quality Check</div>
-                                <select value={quality} onChange={(e) => setQuality(e.target.value)}>
-                                    <option value="">Select Option...</option>
+                            <div class="contact-box">
+                                <div class="label" style="color: #3b82f6;">Support Contact</div>
+                                <div style="font-size: 12px; font-weight: bold; margin-top: 5px;">John Smith</div>
+                                <div style="font-size: 11px; color: #fb923c; margin-top: 2px;">Phone: 555-0199</div>
+                                <div style="font-size: 11px; color: #fb923c;">Email: jsmith@lincolneast.edu</div>
+                            </div>
+
+                            <div class="field" style="margin-top: 15px;">
+                                <div class="label">Quality Check</div>
+                                <select onchange="console.log('Quality updated for ${state.id}')">
+                                    <option value="">Select Status...</option>
                                     <option value="good">Overall Good</option>
                                     <option value="audio">Poor / No Audio</option>
                                     <option value="video">Poor / No Video</option>
-                                    <option value="scoreboard">No Scoreboard</option>
-                                    <option value="delayed">Delayed</option>
+                                    <option value="score">No Scoreboard</option>
+                                    <option value="delay">Delayed</option>
                                 </select>
                             </div>
 
-                            {/* Admin Link */}
-                            <div className="flex flex-col justify-end">
-                                <a 
-                                    href={`https://hudl.com/admin/broadcast/${activeId}`} 
-                                    target="_blank" 
-                                    className="bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-bold py-2 rounded text-center border border-slate-600 transition uppercase"
-                                >
-                                    Broadcast Details Page
-                                </a>
-                            </div>
-
+                            <a href="https://hudl.com/admin/broadcast/${state.id}" target="_blank" class="details-btn">VIEW FULL BROADCAST DETAILS</a>
                         </div>
-                    </div>
-                </div>
-            );
-        };
+                    `;
+                }
+                grid.appendChild(viewport);
+            });
+        }
 
-        const Main = () => {
-            useEffect(() => {
-                const loader = document.getElementById('init-loader');
-                if (loader) loader.style.display = 'none';
-            }, []);
-
-            return (
-                <div className="flex flex-col h-screen">
-                    <div className="h-12 bg-slate-900 border-b border-slate-700 flex items-center px-6 justify-between flex-shrink-0">
-                        <div className="font-bold text-xs tracking-widest"><span className="text-orange-500">HUDL TV</span> COMMAND CENTER</div>
-                        <a href="index.html" className="text-[10px] text-slate-500 hover:text-white uppercase font-bold tracking-widest transition">Exit to Menu</a>
-                    </div>
-                    <div className="grid-container">
-                        <Viewport index={0} />
-                        <Viewport index={1} />
-                        <Viewport index={2} />
-                        <Viewport index={3} />
-                    </div>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<Main />);
+        // Initial Render
+        render();
     </script>
 </body>
 </html>
