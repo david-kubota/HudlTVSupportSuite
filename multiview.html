@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vCloud Support Multi-View</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <style>
+        :root {
+            --bg-dark: #0F1215;
+            --bg-card: #1A1D21;
+            --hudl-orange: #FF6B00;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+        }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-family: sans-serif; }
+        
+        /* Custom Scrollbar for the details pane */
+        .details-scroll::-webkit-scrollbar { width: 6px; }
+        .details-scroll::-webkit-scrollbar-track { background: var(--bg-dark); }
+        .details-scroll::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+
+    // --- MOCK DATA GENERATOR (Simulating your PHP $data) ---
+    const MOCK_STREAMS = [
+        {
+            id: 10423,
+            title: "Varsity Football: Lincoln High vs Washington",
+            section: "Varsity Football",
+            site: "Lincoln High School",
+            status: "Streaming",
+            statusLevel: "good", // good, warning, bad, future
+            date: "Oct 12, 7:00 PM EST",
+            contact: { name: "Coach Mike", phone: "555-0123", email: "mike@lincolnhs.edu" },
+            embed: '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&controls=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+        },
+        {
+            id: 10424,
+            title: "JV Volleyball Tournament - Court 1",
+            section: "Volleyball",
+            site: "Central High",
+            status: "Error",
+            statusLevel: "bad",
+            date: "Oct 12, 5:30 PM EST",
+            contact: { name: "Sarah Smith (AD)", phone: "555-0987", email: "s.smith@central.edu" },
+            embed: null // Simulating a broken stream
+        },
+        {
+            id: 10425,
+            title: "Girls Soccer District Finals",
+            section: "Soccer",
+            site: "Westside High",
+            status: "Upcoming",
+            statusLevel: "future",
+            date: "Oct 12, 8:00 PM EST",
+            contact: { name: "Tech Director", phone: "555-1122", email: "tech@westside.edu" },
+            embed: null
+        },
+        {
+            id: 10426,
+            title: "Band Competition",
+            section: "Fine Arts",
+            site: "North High",
+            status: "Archiving",
+            statusLevel: "neutral",
+            date: "Oct 12, 4:00 PM EST",
+            contact: { name: "Band Booster", phone: "555-3344", email: "band@north.edu" },
+            embed: '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/LXb3EKWsInQ?mute=1&controls=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+        }
+    ];
+
+    // --- COMPONENTS ---
+
+    const StatusBadge = ({ status, level }) => {
+        const colors = {
+            good: "bg-green-900 text-green-300 border-green-700",
+            warning: "bg-yellow-900 text-yellow-300 border-yellow-700",
+            bad: "bg-red-900 text-red-300 border-red-700",
+            future: "bg-blue-900 text-blue-300 border-blue-700",
+            neutral: "bg-gray-700 text-gray-300 border-gray-600",
+        };
+        const colorClass = colors[level] || colors.neutral;
+
+        return (
+            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase border ${colorClass} flex items-center gap-1`}>
+                {level === 'good' && <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>}
+                {status}
+            </span>
+        );
+    };
+
+    const BroadcastCard = ({ data, onEdit }) => {
+        const [isEditing, setIsEditing] = React.useState(false);
+        const [tempEmbed, setTempEmbed] = React.useState(data.embed || "");
+
+        const handleSave = () => {
+            onEdit(data.id, { embed: tempEmbed });
+            setIsEditing(false);
+        };
+
+        return (
+            <div className="bg-[#1A1D21] border border-gray-800 flex flex-col h-full overflow-hidden relative group">
+                
+                {/* VIDEO PLAYER AREA (60% Height) */}
+                <div className="h-[60%] bg-black relative flex items-center justify-center border-b border-gray-800">
+                    {data.embed ? (
+                        <div className="w-full h-full" dangerouslySetInnerHTML={{ __html: data.embed }} />
+                    ) : (
+                        <div className="text-center text-gray-600">
+                            <i className="fa-solid fa-video-slash text-4xl mb-2"></i>
+                            <p className="text-sm">No Signal / Not Live</p>
+                        </div>
+                    )}
+                    
+                    {/* Overlay ID Badge */}
+                    <div className="absolute top-2 left-2 bg-black/70 backdrop-blur text-white text-xs px-2 py-1 rounded font-mono">
+                        ID: {data.id}
+                    </div>
+
+                    {/* Edit Button (Hidden unless hover) */}
+                    <button 
+                        onClick={() => setIsEditing(!isEditing)}
+                        className="absolute top-2 right-2 bg-black/70 hover:bg-blue-600 text-white w-8 h-8 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <i className="fa-solid fa-pen text-xs"></i>
+                    </button>
+                </div>
+
+                {/* EDIT OVERLAY */}
+                {isEditing && (
+                    <div className="absolute inset-0 bg-[#1A1D21] z-20 p-4 flex flex-col">
+                        <h3 className="text-white font-bold mb-2">Manual Override</h3>
+                        <p className="text-xs text-gray-400 mb-2">Paste iframe or embed code below to test:</p>
+                        <textarea 
+                            className="flex-1 bg-black border border-gray-700 text-gray-300 text-xs p-2 mb-2 font-mono"
+                            value={tempEmbed}
+                            onChange={(e) => setTempEmbed(e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                            <button onClick={handleSave} className="flex-1 bg-blue-600 text-white py-1 rounded text-sm hover:bg-blue-500">Update Player</button>
+                            <button onClick={() => setIsEditing(false)} className="flex-1 bg-gray-700 text-white py-1 rounded text-sm hover:bg-gray-600">Cancel</button>
+                        </div>
+                    </div>
+                )}
+
+                {/* DETAILS AREA (40% Height) */}
+                <div className="flex-1 p-3 flex flex-col gap-3 overflow-hidden">
+                    
+                    {/* Header Line */}
+                    <div className="flex justify-between items-start">
+                        <div className="flex-1 min-w-0 pr-2">
+                            <h3 className="font-bold text-sm text-white truncate" title={data.title}>{data.title}</h3>
+                            <p className="text-xs text-[#FF6B00]">{data.section}</p>
+                        </div>
+                        <StatusBadge status={data.status} level={data.statusLevel} />
+                    </div>
+
+                    {/* Info Grid */}
+                    <div className="grid grid-cols-2 gap-2 text-xs flex-1 details-scroll overflow-y-auto">
+                        
+                        {/* Column 1: Stream Details */}
+                        <div className="space-y-1.5">
+                            <div>
+                                <span className="block text-gray-500 text-[10px] uppercase">Site</span>
+                                <span className="text-gray-300">{data.site}</span>
+                            </div>
+                            <div>
+                                <span className="block text-gray-500 text-[10px] uppercase">Scheduled</span>
+                                <span className="text-gray-300">{data.date}</span>
+                            </div>
+                            <div>
+                                <span className="block text-gray-500 text-[10px] uppercase">Tools</span>
+                                <div className="flex gap-2 mt-1">
+                                    <a href="#" className="text-blue-400 hover:text-blue-300"><i className="fa-solid fa-chart-line"></i></a>
+                                    <a href="#" className="text-blue-400 hover:text-blue-300"><i className="fa-solid fa-list-check"></i></a>
+                                    <a href="#" className="text-blue-400 hover:text-blue-300"><i className="fa-solid fa-clock-rotate-left"></i></a>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Column 2: Contact Info (High Priority for Support) */}
+                        <div className="bg-gray-800/50 rounded p-2 border border-gray-700/50">
+                            <span className="block text-gray-500 text-[10px] uppercase mb-1 border-b border-gray-700 pb-1">
+                                <i className="fa-solid fa-address-book mr-1"></i> Contact
+                            </span>
+                            <div className="space-y-1">
+                                <div className="truncate font-medium text-white" title={data.contact.name}>{data.contact.name}</div>
+                                <div className="flex items-center gap-2">
+                                    <i className="fa-solid fa-phone text-gray-500 text-[10px]"></i>
+                                    <a href={`tel:${data.contact.phone}`} className="text-blue-400 hover:text-blue-300">{data.contact.phone}</a>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <i className="fa-solid fa-envelope text-gray-500 text-[10px]"></i>
+                                    <a href={`mailto:${data.contact.email}`} className="text-blue-400 hover:text-blue-300 truncate">{data.contact.email}</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const App = () => {
+        const [streams, setStreams] = React.useState(MOCK_STREAMS);
+
+        const handleUpdateStream = (id, newData) => {
+            setStreams(streams.map(s => s.id === id ? { ...s, ...newData } : s));
+        };
+
+        return (
+            <div className="h-screen w-screen flex flex-col">
+                {/* GLOBAL HEADER */}
+                <header className="h-14 bg-[#1A1D21] border-b border-gray-700 flex items-center justify-between px-4 shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-[#FF6B00] text-white font-bold w-8 h-8 rounded flex items-center justify-center">V</div>
+                        <h1 className="text-lg font-bold">Support Multi-View</h1>
+                        <span className="bg-gray-800 text-xs px-2 py-1 rounded text-gray-400">Monitoring 4 Active Streams</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-gray-400">
+                        <span><i className="fa-regular fa-clock mr-1"></i> {new Date().toLocaleTimeString()}</span>
+                        <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                            <i className="fa-solid fa-user"></i>
+                        </div>
+                    </div>
+                </header>
+
+                {/* 2x2 GRID */}
+                <main className="flex-1 p-2 overflow-hidden">
+                    <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full w-full">
+                        {streams.map((stream) => (
+                            <BroadcastCard key={stream.id} data={stream} onEdit={handleUpdateStream} />
+                        ))}
+                    </div>
+                </main>
+            </div>
+        );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+
+</script>
+
+</body>
+</html>
