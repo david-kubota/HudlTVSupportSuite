@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PPV Revenue Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+<script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+<script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<style>
+  :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --muted: #94a3b8; --green: #10b981; --border: #334155; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 2rem; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  .header { display: flex; justify-content: space-between; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; }
+  .upload-box { border: 2px dashed var(--border); padding: 5rem; text-align: center; border-radius: 1rem; cursor: pointer; background: var(--card); margin-top: 10vh; }
+  .upload-box:hover { border-color: var(--green); background: rgba(16, 185, 129, 0.05); }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  th { text-align: left; padding: 1rem; border-bottom: 1px solid var(--border); color: var(--muted); position: sticky; top: 0; background: var(--card); }
+  td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+  @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
+  .back-link { text-decoration: none; color: var(--muted); font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .back-link:hover { color: #fff; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const { useState, useMemo } = React;
+  const { BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts;
+  const formatCurrency = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n);
+
+  const App = () => {
+    const [data, setData] = useState(null);
+
+    const handleFileUpload = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true,
+        complete: (results) => {
+          const processed = results.data
+            .filter(r => r['Date Captured'] && r['Status'] === 'Captured') // Only successful sales
+            .map(row => ({
+              date: new Date(row['Date Captured']),
+              net: row['NET'] || 0,
+              gross: row['Charged'] || 0,
+              fees: (row['Service Fee'] || 0) + (row['Sales Tax'] || 0),
+              sport: row['Section'] || 'Other',
+              site: row['Site'] || 'Unknown',
+              desc: row['Description']
+            }))
+            .sort((a, b) => a.date - b.date);
+          setData(processed);
+        }
+      });
+    };
+
+    const stats = useMemo(() => {
+      if (!data) return null;
+      
+      // Totals
+      const totalNet = data.reduce((acc, r) => acc + r.net, 0);
+      const totalGross = data.reduce((acc, r) => acc + r.gross, 0);
+      const totalOrders = data.length;
+      
+      // Timeline (Group by Day)
+      const timelineMap = {};
+      data.forEach(d => {
+        const day = d.date.toLocaleDateString();
+        if(!timelineMap[day]) timelineMap[day] = { date: day, time: d.date.getTime(), net: 0, gross: 0 };
+        timelineMap[day].net += d.net;
+        timelineMap[day].gross += d.gross;
+      });
+      const timeline = Object.values(timelineMap).sort((a,b) => a.time - b.time);
+
+      // Top Sports by Revenue
+      const sportMap = {};
+      data.forEach(d => {
+        if(!sportMap[d.sport]) sportMap[d.sport] = { name: d.sport, value: 0 };
+        sportMap[d.sport].value += d.net;
+      });
+      const topSports = Object.values(sportMap).sort((a,b) => b.value - a.value).slice(0, 5);
+
+      return { totalNet, totalGross, totalOrders, timeline, topSports };
+    }, [data]);
+
+    if (!data) {
+      return (
+        <div className="container">
+          <a href="index.html" className="back-link">← Back to Menu</a>
+          <label className="upload-box" style={{display:'block'}}>
+            <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
+            <div style={{fontSize:'3rem', marginBottom:'1rem'}}>💰</div>
+            <h2>Upload PPV Report</h2>
+            <div style={{color:'var(--muted)'}}>Supports standard Finance Export CSV</div>
+          </label>
+        </div>
+      );
+    }
+
+    return (
+      <div className="container">
+        <div className="header">
+          <div>
+            <a href="index.html" className="back-link">← Back to Menu</a>
+            <h1 style={{margin:0}}>PPV Revenue Analytics</h1>
+          </div>
+          <button onClick={() => setData(null)} style={{background:'transparent', border:'1px solid #334155', color:'#fff', padding:'0.5rem 1rem', borderRadius:'4px', cursor:'pointer'}}>Upload New</button>
+        </div>
+
+        <div className="grid-4">
+          <div className="card">
+            <div style={{color:'var(--muted)'}}>Net Revenue</div>
+            <div style={{fontSize:'2rem', fontWeight:'bold', color:'#10b981'}}>{formatCurrency(stats.totalNet)}</div>
+            <div style={{fontSize:'0.8rem', color:'var(--muted)'}}>After fees & taxes</div>
+          </div>
+          <div className="card">
+            <div style={{color:'var(--muted)'}}>Gross Sales</div>
+            <div style={{fontSize:'2rem', fontWeight:'bold'}}>{formatCurrency(stats.totalGross)}</div>
+          </div>
+          <div className="card">
+            <div style={{color:'var(--muted)'}}>Total Orders</div>
+            <div style={{fontSize:'2rem', fontWeight:'bold'}}>{stats.totalOrders}</div>
+          </div>
+          <div className="card">
+            <div style={{color:'var(--muted)'}}>Avg Order Value</div>
+            <div style={{fontSize:'2rem', fontWeight:'bold'}}>{formatCurrency(stats.totalGross / stats.totalOrders)}</div>
+          </div>
+        </div>
+
+        <div className="grid-2">
+          <div className="card">
+            <h3>Revenue Trend (Net)</h3>
+            <div style={{height: 300}}>
+              <ResponsiveContainer>
+                <AreaChart data={stats.timeline}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey="date" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" tickFormatter={(val) => `$${val}`} />
+                  <Tooltip contentStyle={{background:'#1e293b', borderColor:'#334155', color:'#fff'}} formatter={(val) => formatCurrency(val)} />
+                  <Area type="monotone" dataKey="net" stroke="#10b981" fill="rgba(16, 185, 129, 0.2)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="card">
+            <h3>Top Sports by Revenue</h3>
+            <div style={{height: 300}}>
+              <ResponsiveContainer>
+                <BarChart data={stats.topSports} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false} />
+                  <XAxis type="number" stroke="#94a3b8" tickFormatter={(val) => `$${val}`} />
+                  <YAxis type="category" dataKey="name" stroke="#94a3b8" width={100} />
+                  <Tooltip contentStyle={{background:'#1e293b', borderColor:'#334155', color:'#fff'}} formatter={(val) => formatCurrency(val)} />
+                  <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <h3>Recent Transactions</h3>
+          <div style={{overflowX: 'auto', maxHeight: '400px'}}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Item</th>
+                  <th>Sport</th>
+                  <th style={{textAlign:'right'}}>Net Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.slice().reverse().slice(0, 100).map((row, i) => (
+                  <tr key={i}>
+                    <td>{row.date.toLocaleDateString()} {row.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</td>
+                    <td>{row.site}</td>
+                    <td title={row.desc}>{row.desc.substring(0, 40)}...</td>
+                    <td>{row.sport}</td>
+                    <td style={{textAlign:'right', color:'#10b981', fontWeight:'bold'}}>{formatCurrency(row.net)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    );
+  };
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(<App />);
+</script>
+</body>
+</html>
