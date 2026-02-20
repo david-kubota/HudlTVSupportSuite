@@ -13,6 +13,7 @@
   .card { background-color: #1e293b; border: 1px solid #334155; }
   input, select, textarea { background: #0f172a; border: 1px solid #334155; color: white; outline: none; }
   input:focus, select:focus, textarea:focus { border-color: #f97316; }
+  tr.clickable-row:hover td { background-color: rgba(255,255,255,0.03); cursor: pointer; }
   tr:hover td { background-color: rgba(255,255,255,0.015); }
 </style>
 </head>
@@ -40,9 +41,14 @@ const MOCK_ORDERS = [
     deletedAt: null,
     originalTicketGroup: null,
     status: "Active",
+    organization: "Lincoln High School",
+    eventName: "2025 Football Season Pass",
+    eventDateStart: "2025-08-15",
+    eventDateEnd: "2025-11-22",
+    eventStatus: "Past",
     passes: [
-      { passId: "UGFzczY4N2U3MWEzNjMyMTI4YTFjNjBiMjVlNw==", passConfigId: "UGFzc0NvbmZpZzY4NGFkZjI4ZDEyMGQ5YTMwMzk3NjNiYQ==", source: "Mobile", reservedSeats: null },
-      { passId: "UGFzczY4N2U3MWEzNjMyMTI4YTFjNjBiMjVlOA==", passConfigId: "UGFzc0NvbmZpZzY4NGFkZjI4ZDEyMGQ5YTMwMzk3NjNiYQ==", source: "Mobile", reservedSeats: null }
+      { passId: "UGFzczY4N2U3MWEzNjMyMTI4YTFjNjBiMjVlNw==", passConfigId: "UGFzc0NvbmZpZzY4NGFkZjI4ZDEyMGQ5YTMwMzk3NjNiYQ==", source: "Mobile", reservedSeats: null, access: "Active" },
+      { passId: "UGFzczY4N2U3MWEzNjMyMTI4YTFjNjBiMjVlOA==", passConfigId: "UGFzc0NvbmZpZzY4NGFkZjI4ZDEyMGQ5YTMwMzk3NjNiYQ==", source: "Mobile", reservedSeats: null, access: "Active" }
     ],
     transferHistory: []
   },
@@ -62,8 +68,13 @@ const MOCK_ORDERS = [
     deletedAt: null,
     originalTicketGroup: null,
     status: "Refunded",
+    organization: "Westside Academy",
+    eventName: "Varsity Basketball vs. Eastside",
+    eventDateStart: "2026-01-20",
+    eventDateEnd: null,
+    eventStatus: "Past",
     passes: [
-      { passId: "UGFzczE5MjgzNzQ2YWIxYzJkMzRlZmdoMTIz", passConfigId: "UGFzc0NvbmZpZzE5MjgzNzQ2YWIxYzJkMzRlZmdoMTIz", source: "Web", reservedSeats: null }
+      { passId: "UGFzczE5MjgzNzQ2YWIxYzJkMzRlZmdoMTIz", passConfigId: "UGFzc0NvbmZpZzE5MjgzNzQ2YWIxYzJkMzRlZmdoMTIz", source: "Web", reservedSeats: null, access: "Revoked" }
     ],
     transferHistory: []
   },
@@ -83,9 +94,14 @@ const MOCK_ORDERS = [
     deletedAt: null,
     originalTicketGroup: null,
     status: "Active",
+    organization: "Riverside High School",
+    eventName: "2025-26 Wrestling Season Pass",
+    eventDateStart: "2025-11-01",
+    eventDateEnd: "2026-03-15",
+    eventStatus: "In Progress",
     passes: [
-      { passId: "UGFzczM4NDc1NjEweHk5ejh3NzZ2dXFyMTIz", passConfigId: "UGFzc0NvbmZpZzM4NDc1NjEweHk5ejh3NzZ2dXFyMTIz", source: "Mobile", reservedSeats: null },
-      { passId: "UGFzczM4NDc1NjEweHk5ejh3NzZ2dXFyNDU2", passConfigId: "UGFzc0NvbmZpZzM4NDc1NjEweHk5ejh3NzZ2dXFyNDU2", source: "Mobile", reservedSeats: "Row C, Seat 12" }
+      { passId: "UGFzczM4NDc1NjEweHk5ejh3NzZ2dXFyMTIz", passConfigId: "UGFzc0NvbmZpZzM4NDc1NjEweHk5ejh3NzZ2dXFyMTIz", source: "Mobile", reservedSeats: null, access: "Active" },
+      { passId: "UGFzczM4NDc1NjEweHk5ejh3NzZ2dXFyNDU2", passConfigId: "UGFzc0NvbmZpZzM4NDc1NjEweHk5ejh3NzZ2dXFyNDU2", source: "Mobile", reservedSeats: "Row C, Seat 12", access: "Active" }
     ],
     transferHistory: [
       { date: "2025-10-15T09:00:00.000Z", from: "sarah.m@yahoo.com", to: "mark.mitchell@gmail.com", passId: "UGFzczM4NDc1NjEweHk5ejh3NzZ2dXFyNDU2", action: "Transfer" }
@@ -107,8 +123,13 @@ const MOCK_ORDERS = [
     deletedAt: null,
     originalTicketGroup: null,
     status: "Active",
+    organization: "North Valley High School",
+    eventName: "Boys Soccer vs. South Ridge",
+    eventDateStart: "2026-02-22",
+    eventDateEnd: null,
+    eventStatus: "Upcoming",
     passes: [
-      { passId: "UGFzczQ3MzgyOTEwbW41cDZxNzhyc3R1MTIz", passConfigId: "UGFzc0NvbmZpZzQ3MzgyOTEwbW41cDZxNzhyc3R1MTIz", source: "Web", reservedSeats: null }
+      { passId: "UGFzczQ3MzgyOTEwbW41cDZxNzhyc3R1MTIz", passConfigId: "UGFzc0NvbmZpZzQ3MzgyOTEwbW41cDZxNzhyc3R1MTIz", source: "Web", reservedSeats: null, access: "Active" }
     ],
     transferHistory: []
   },
@@ -128,24 +149,249 @@ const MOCK_ORDERS = [
     deletedAt: null,
     originalTicketGroup: null,
     status: "Active",
+    organization: "Eastlake Preparatory",
+    eventName: "2026 Lacrosse Season Pass",
+    eventDateStart: "2026-03-01",
+    eventDateEnd: "2026-06-15",
+    eventStatus: "Upcoming",
     passes: [
-      { passId: "UGFzzNTUwMTkyODNycDJxM3I0NXN0dXYxMjM=", passConfigId: "UGFzc0NvbmZpZzU1MDE5MjgzcnAycTNyNDVzdHV2MTIz", source: "Mobile", reservedSeats: null },
-      { passId: "UGFzzNTUwMTkyODNycDJxM3I0NXN0dXY0NTY=", passConfigId: "UGFzc0NvbmZpZzU1MDE5MjgzcnAycTNyNDVzdHV2NDU2", source: "Mobile", reservedSeats: null }
+      { passId: "UGFzzNTUwMTkyODNycDJxM3I0NXN0dXYxMjM=", passConfigId: "UGFzc0NvbmZpZzU1MDE5MjgzcnAycTNyNDVzdHV2MTIz", source: "Mobile", reservedSeats: null, access: "Active" },
+      { passId: "UGFzzNTUwMTkyODNycDJxM3I0NXN0dXY0NTY=", passConfigId: "UGFzc0NvbmZpZzU1MDE5MjgzcnAycTNyNDVzdHV2NDU2", source: "Mobile", reservedSeats: null, access: "Active" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "kl8m9n01opqr",
+    id: "VGlja2V0R3JvdXBrbDhtOW4wMW9wcXIxMjM0NTY3ODk=",
+    userId: "60918273",
+    firstName: "Kevin",
+    lastName: "Brooks",
+    email: "kbrooks77@gmail.com",
+    orderTotal: 25.00,
+    currency: "USD",
+    itemCategories: "Single Game",
+    source: "Web",
+    createdAt: "2026-02-19T14:22:00.000Z",
+    updatedAt: "2026-02-19T14:22:00.000Z",
+    deletedAt: null,
+    originalTicketGroup: null,
+    status: "Active",
+    organization: "Central High School",
+    eventName: "Varsity Football vs. Northern Prep",
+    eventDateStart: "2026-02-28",
+    eventDateEnd: null,
+    eventStatus: "Upcoming",
+    passes: [
+      { passId: "UGFzczkwMTgyNzNrbDhtOW4wMW9wcXIxMjM=", passConfigId: "UGFzc0NvbmZpZzkwMTgyNzNrbDhtOW4wMW9wcXIxMjM=", source: "Web", reservedSeats: "Row A, Seat 5", access: "Active" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "cd3e4f56ghij",
+    id: "VGlja2V0R3JvdXBjZDNlNGY1NmdoaWoxMjM0NTY3ODk=",
+    userId: "71029384",
+    firstName: "Angela",
+    lastName: "Wright",
+    email: "a.wright@icloud.com",
+    orderTotal: 60.00,
+    currency: "USD",
+    itemCategories: "Season Pass",
+    source: "Mobile",
+    createdAt: "2026-01-28T09:15:00.000Z",
+    updatedAt: "2026-01-28T09:15:00.000Z",
+    deletedAt: null,
+    originalTicketGroup: null,
+    status: "Active",
+    organization: "Summit Academy",
+    eventName: "2025-26 Boys Basketball Season Pass",
+    eventDateStart: "2025-11-15",
+    eventDateEnd: "2026-03-10",
+    eventStatus: "In Progress",
+    passes: [
+      { passId: "UGFzczcxMDI5Mzg0Y2QzZTRmNTZnaGlqMTIz", passConfigId: "UGFzc0NvbmZpZzcxMDI5Mzg0Y2QzZTRmNTZnaGlqMTIz", source: "Mobile", reservedSeats: "Row D, Seat 8", access: "Active" },
+      { passId: "UGFzczcxMDI5Mzg0Y2QzZTRmNTZnaGlqNDU2", passConfigId: "UGFzc0NvbmZpZzcxMDI5Mzg0Y2QzZTRmNTZnaGlqNDU2", source: "Mobile", reservedSeats: "Row D, Seat 9", access: "Active" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "wx5y6z78abcd",
+    id: "VGlja2V0R3JvdXB3eDV5Nno3OGFiY2QxMjM0NTY3ODk=",
+    userId: "82937461",
+    firstName: "Rachel",
+    lastName: "Nguyen",
+    email: "rachel.nguyen@proton.me",
+    orderTotal: 15.00,
+    currency: "USD",
+    itemCategories: "Single Game",
+    source: "Web",
+    createdAt: "2026-02-14T17:45:00.000Z",
+    updatedAt: "2026-02-14T17:45:00.000Z",
+    deletedAt: null,
+    originalTicketGroup: null,
+    status: "Active",
+    organization: "Riverside High School",
+    eventName: "Girls Volleyball vs. Lakeview",
+    eventDateStart: "2026-02-20",
+    eventDateEnd: null,
+    eventStatus: "Upcoming",
+    passes: [
+      { passId: "UGFzcjgyOTM3NDYxd3g1eTZ6NzhhYmNkMTIz", passConfigId: "UGFzc0NvbmZpZzgyOTM3NDYxd3g1eTZ6NzhhYmNkMTIz", source: "Web", reservedSeats: null, access: "Active" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "ef7g8h90ijkl",
+    id: "VGlja2V0R3JvdXBlZjdnOGg5MGlqa2wxMjM0NTY3ODk=",
+    userId: "93048275",
+    firstName: "Marcus",
+    lastName: "Johnson",
+    email: "marcusj_22@yahoo.com",
+    orderTotal: 35.00,
+    currency: "USD",
+    itemCategories: "Pass",
+    source: "Mobile",
+    createdAt: "2026-02-05T12:30:00.000Z",
+    updatedAt: "2026-02-05T12:30:00.000Z",
+    deletedAt: null,
+    originalTicketGroup: null,
+    status: "Active",
+    organization: "Westside Academy",
+    eventName: "Winter Sports Bundle Pass",
+    eventDateStart: "2025-12-01",
+    eventDateEnd: "2026-03-01",
+    eventStatus: "In Progress",
+    passes: [
+      { passId: "UGFzczkzMDQ4Mjc1ZWY3ZzhoOTBpamtsMTIz", passConfigId: "UGFzc0NvbmZpZzkzMDQ4Mjc1ZWY3ZzhoOTBpamtsMTIz", source: "Mobile", reservedSeats: null, access: "Active" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "tu2v3w45xyza",
+    id: "VGlja2V0R3JvdXB0dTJ2M3c0NXh5emExMjM0NTY3ODk=",
+    userId: "10293847",
+    firstName: "Emily",
+    lastName: "Sato",
+    email: "emilysato@gmail.com",
+    orderTotal: 20.00,
+    currency: "USD",
+    itemCategories: "Single Game",
+    source: "Mobile",
+    createdAt: "2026-02-12T08:00:00.000Z",
+    updatedAt: "2026-02-12T08:00:00.000Z",
+    deletedAt: "2026-02-13T10:00:00.000Z",
+    originalTicketGroup: "VGlja2V0R3JvdXBPUklHMTIzNDU2Nzg5",
+    status: "Cancelled",
+    organization: "North Valley High School",
+    eventName: "Girls Basketball vs. Hillcrest",
+    eventDateStart: "2026-02-15",
+    eventDateEnd: null,
+    eventStatus: "Past",
+    passes: [
+      { passId: "UGFzcjEwMjkzODQ3dHUydjN3NDV4eXphMTIz", passConfigId: "UGFzc0NvbmZpZzEwMjkzODQ3dHUydjN3NDV4eXphMTIz", source: "Mobile", reservedSeats: null, access: "Revoked" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "qr4s5t67uvwx",
+    id: "VGlja2V0R3JvdXBxcjRzNXQ2N3V2d3gxMjM0NTY3ODk=",
+    userId: "20384756",
+    firstName: "James",
+    lastName: "Okafor",
+    email: "j.okafor@outlook.com",
+    orderTotal: 55.00,
+    currency: "USD",
+    itemCategories: "Season Pass",
+    source: "Web",
+    createdAt: "2026-01-20T15:00:00.000Z",
+    updatedAt: "2026-02-01T10:30:00.000Z",
+    deletedAt: null,
+    originalTicketGroup: null,
+    status: "Active",
+    organization: "Central High School",
+    eventName: "2025-26 Swim & Dive Season Pass",
+    eventDateStart: "2025-10-20",
+    eventDateEnd: "2026-02-28",
+    eventStatus: "In Progress",
+    passes: [
+      { passId: "UGFzcjIwMzg0NzU2cXI0czV0Njd1dnd4MTIz", passConfigId: "UGFzc0NvbmZpZzIwMzg0NzU2cXI0czV0Njd1dnd4MTIz", source: "Web", reservedSeats: null, access: "Active" },
+      { passId: "UGFzcjIwMzg0NzU2cXI0czV0Njd1dnd4NDU2", passConfigId: "UGFzc0NvbmZpZzIwMzg0NzU2cXI0czV0Njd1dnd4NDU2", source: "Web", reservedSeats: null, access: "Active" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "yz1a2b34cdef",
+    id: "VGlja2V0R3JvdXB5ejFhMmIzNGNkZWYxMjM0NTY3ODk=",
+    userId: "30495867",
+    firstName: "Priya",
+    lastName: "Sharma",
+    email: "priya.sharma@live.com",
+    orderTotal: 12.00,
+    currency: "USD",
+    itemCategories: "Single Game",
+    source: "Mobile",
+    createdAt: "2026-02-17T20:00:00.000Z",
+    updatedAt: "2026-02-17T20:00:00.000Z",
+    deletedAt: null,
+    originalTicketGroup: null,
+    status: "Active",
+    organization: "Eastlake Preparatory",
+    eventName: "Track & Field Invitational",
+    eventDateStart: "2026-03-05",
+    eventDateEnd: null,
+    eventStatus: "Upcoming",
+    passes: [
+      { passId: "UGFzcjMwNDk1ODY3eXoxYTJiMzRjZGVmMTIz", passConfigId: "UGFzc0NvbmZpZzMwNDk1ODY3eXoxYTJiMzRjZGVmMTIz", source: "Mobile", reservedSeats: null, access: "Active" }
+    ],
+    transferHistory: []
+  },
+  {
+    orderNumber: "fg6h7j89klmn",
+    id: "VGlja2V0R3JvdXBmZzZoN2o4OWtsbW4xMjM0NTY3ODk=",
+    userId: "40506978",
+    firstName: "Carlos",
+    lastName: "Reyes",
+    email: "creyes_99@gmail.com",
+    orderTotal: 90.00,
+    currency: "USD",
+    itemCategories: "Season Pass",
+    source: "Web",
+    createdAt: "2026-02-20T10:05:00.000Z",
+    updatedAt: "2026-02-20T10:05:00.000Z",
+    deletedAt: null,
+    originalTicketGroup: null,
+    status: "Active",
+    organization: "Summit Academy",
+    eventName: "2026 Spring Sports All-Access Pass",
+    eventDateStart: "2026-03-15",
+    eventDateEnd: "2026-06-30",
+    eventStatus: "Upcoming",
+    passes: [
+      { passId: "UGFzcjQwNTA2OTc4Zmc2aDdqODlrbG1uMTIz", passConfigId: "UGFzc0NvbmZpZzQwNTA2OTc4Zmc2aDdqODlrbG1uMTIz", source: "Web", reservedSeats: "Row B, Seat 3", access: "Active" },
+      { passId: "UGFzcjQwNTA2OTc4Zmc2aDdqODlrbG1uNDU2", passConfigId: "UGFzc0NvbmZpZzQwNTA2OTc4Zmc2aDdqODlrbG1uNDU2", source: "Web", reservedSeats: "Row B, Seat 4", access: "Active" }
     ],
     transferHistory: []
   }
 ];
 
 // ─── Utilities ───────────────────────────────────────────────────────────────
-const fmt = (isoStr) => {
-  if (!isoStr) return "—";
+const fmtHuman = (isoStr) => {
+  if (!isoStr) return null;
   const d = new Date(isoStr);
-  return d.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" });
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    + " at "
+    + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
 };
 
-const fmtDate = (isoStr) => {
+const fmtDateShort = (isoStr) => {
   if (!isoStr) return "—";
-  return isoStr.split("T")[0];
+  return new Date(isoStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
+
+const fmtEventDate = (start, end) => {
+  const s = new Date(start).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  if (!end) return s;
+  const e = new Date(end).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return `${s} — ${e}`;
 };
 
 const copyToClipboard = (text) => {
@@ -193,6 +439,27 @@ const StatusPill = ({ status }) => {
   );
 };
 
+const EventStatusBadge = ({ status }) => {
+  const map = {
+    "Upcoming":    "bg-blue-900/30 text-blue-400 border-blue-800",
+    "In Progress": "bg-green-900/30 text-green-400 border-green-800",
+    "Cancelled":   "bg-red-900/30 text-red-400 border-red-900",
+    "Past":        "bg-slate-700/30 text-slate-400 border-slate-600",
+  };
+  return (
+    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${map[status] || map.Past}`}>
+      {status}
+    </span>
+  );
+};
+
+const AccessBadge = ({ access }) => {
+  if (access === "Revoked") {
+    return <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase border border-red-900 bg-red-900/30 text-red-400">Revoked</span>;
+  }
+  return <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase border border-green-800 bg-green-900/30 text-green-400">Active</span>;
+};
+
 const Toast = ({ msg, type }) => (
   <div className={`fixed top-5 right-5 z-50 px-5 py-3 rounded-xl text-sm font-semibold shadow-2xl flex items-center gap-2 animate-pulse
     ${type === "error" ? "bg-red-700 border border-red-500" : "bg-green-700 border border-green-500"}`}>
@@ -231,7 +498,6 @@ const RefundModal = ({ order, onClose, onConfirm }) => {
           <button onClick={onClose} className="text-slate-500 hover:text-white text-xl font-bold leading-none">×</button>
         </div>
 
-        {/* Order Summary */}
         <div className="bg-slate-900 rounded-xl p-4 mb-5 space-y-2 text-sm border border-slate-700">
           <div className="flex justify-between"><span className="text-slate-400">Order Total</span><span className="font-bold">${order.orderTotal.toFixed(2)}</span></div>
           <div className="flex justify-between"><span className="text-slate-400">Customer</span><span>{order.firstName} {order.lastName}</span></div>
@@ -240,7 +506,6 @@ const RefundModal = ({ order, onClose, onConfirm }) => {
           <div className="flex justify-between"><span className="text-slate-400">Passes</span><span>{order.passes.length}</span></div>
         </div>
 
-        {/* Refund Type */}
         <div className="mb-4">
           <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Refund Type</label>
           <div className="flex gap-3">
@@ -277,7 +542,6 @@ const RefundModal = ({ order, onClose, onConfirm }) => {
           </div>
         )}
 
-        {/* Reason */}
         <div className="mb-5">
           <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">Reason</label>
           <select value={reason} onChange={e => setReason(e.target.value)} className="w-full p-3 rounded-lg text-sm focus:border-orange-500 transition">
@@ -291,7 +555,7 @@ const RefundModal = ({ order, onClose, onConfirm }) => {
         </div>
 
         <div className="bg-red-900/20 border border-red-800 rounded-lg p-3 mb-5 text-xs text-red-300 leading-relaxed">
-          ⚠️ Confirming will immediately revoke the fan's access and initiate a refund of <strong>{refundAmount}</strong> to their original payment method.
+          Confirming will immediately initiate a refund of <strong>{refundAmount}</strong> to their original payment method.
         </div>
 
         <div className="flex gap-3">
@@ -381,7 +645,7 @@ const TransferModal = ({ order, onClose, onConfirm }) => {
         </div>
 
         <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-3 mb-5 text-xs text-blue-300 leading-relaxed">
-          ✉️ The recipient will receive a confirmation email with instructions to access their transferred pass. The original owner's access will be revoked.
+          The recipient will receive a confirmation email with instructions to access their transferred pass. The original owner's access will be revoked.
         </div>
 
         <div className="flex gap-3">
@@ -395,11 +659,76 @@ const TransferModal = ({ order, onClose, onConfirm }) => {
   );
 };
 
+// ─── Revoke Access Modal ─────────────────────────────────────────────────────
+const RevokeModal = ({ order, onClose, onConfirm }) => {
+  const seatedPasses = order.passes.filter(p => p.reservedSeats && p.access === "Active");
+  const [releaseSeats, setReleaseSeats] = useState(true);
+
+  return (
+    <div className="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4">
+      <div className="bg-slate-800 border border-slate-600 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+        <div className="flex justify-between items-start mb-5">
+          <div>
+            <h2 className="text-lg font-black text-amber-400">Revoke Access</h2>
+            <p className="text-slate-400 text-xs mt-1">
+              This will revoke fan access for this order.
+            </p>
+          </div>
+          <button onClick={onClose} className="text-slate-500 hover:text-white text-xl font-bold leading-none">×</button>
+        </div>
+
+        <div className="bg-slate-900 rounded-xl p-4 mb-5 space-y-2 text-sm border border-slate-700">
+          <div className="flex justify-between"><span className="text-slate-400">Event</span><span className="text-right font-semibold">{order.eventName}</span></div>
+          <div className="flex justify-between"><span className="text-slate-400">Organization</span><span>{order.organization}</span></div>
+          <div className="flex justify-between"><span className="text-slate-400">Customer</span><span>{order.firstName} {order.lastName}</span></div>
+          <div className="flex justify-between"><span className="text-slate-400">Email</span><span className="text-xs">{order.email}</span></div>
+          <div className="flex justify-between"><span className="text-slate-400">Active Passes</span><span>{order.passes.filter(p => p.access === "Active").length}</span></div>
+        </div>
+
+        {seatedPasses.length > 0 && (
+          <div className="mb-5">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={releaseSeats}
+                onChange={e => setReleaseSeats(e.target.checked)}
+                className="mt-0.5 accent-amber-500 w-4 h-4"
+              />
+              <div>
+                <span className="text-sm font-bold text-slate-200">Release reserved seats</span>
+                <div className="text-xs text-slate-400 mt-1 space-y-0.5">
+                  {seatedPasses.map(p => (
+                    <div key={p.passId}>{p.reservedSeats}</div>
+                  ))}
+                </div>
+              </div>
+            </label>
+          </div>
+        )}
+
+        <div className="bg-amber-900/20 border border-amber-800 rounded-lg p-3 mb-5 text-xs text-amber-300 leading-relaxed">
+          Revoking access will immediately prevent the fan from viewing this event's content. <strong>No refund will be issued automatically</strong> — use the Refund button separately if a refund is also needed.
+        </div>
+
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-3 rounded-lg border border-slate-600 text-slate-400 hover:text-white font-bold text-sm transition">Cancel</button>
+          <button onClick={() => onConfirm({ releaseSeats })} className="flex-1 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-sm transition">
+            Revoke Access
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ─── Order Detail View ────────────────────────────────────────────────────────
 const OrderDetail = ({ order: initial, onBack }) => {
   const [order, setOrder] = useState(initial);
   const [showRefund, setShowRefund] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showRevoke, setShowRevoke] = useState(false);
+  const [accessRevoked, setAccessRevoked] = useState(false);
+  const [showTechIds, setShowTechIds] = useState(false);
   const [toast, setToast] = useState(null);
 
   const notify = (msg, type = "success") => {
@@ -427,33 +756,48 @@ const OrderDetail = ({ order: initial, onBack }) => {
     notify(`Pass successfully transferred to ${newEmail}.`);
   };
 
+  const handleRevoke = ({ releaseSeats }) => {
+    setOrder(o => ({
+      ...o,
+      passes: o.passes.map(p => ({ ...p, access: "Revoked" }))
+    }));
+    setAccessRevoked(true);
+    setShowRevoke(false);
+    notify(`Access revoked for ${order.firstName} ${order.lastName}.${releaseSeats ? " Reserved seats released." : ""}`);
+  };
+
   const handleResend = () => {
     notify(`Confirmation email resent to ${order.email}.`);
   };
 
   const isRefunded = order.status === "Refunded";
+  const hasActiveAccess = order.passes.some(p => p.access === "Active") && !accessRevoked;
 
-  const rows = [
-    { label: "Id",                   value: order.id },
-    { label: "User Id",              value: order.userId, link: `https://admin.hudl.com/user/${order.userId}` },
-    { label: "First Name",           value: order.firstName },
-    { label: "Last Name",            value: order.lastName },
-    { label: "Email",                value: order.email },
-    { label: "Order Total",          value: `$${order.orderTotal.toFixed(2)}` },
-    { label: "Currency",             value: order.currency },
-    { label: "Item Categories",      value: order.itemCategories },
-    { label: "Created At",           value: order.createdAt },
-    { label: "Updated At",           value: order.updatedAt },
-    { label: "Deleted At",           value: order.deletedAt || "—" },
-    { label: "Source",               value: order.source },
-    { label: "Original Ticket Group",value: order.originalTicketGroup || "N/A" },
+  // Order Details rows (plain-English names, human-readable dates)
+  const detailRows = [
+    { label: "Customer",       value: `${order.firstName} ${order.lastName}` },
+    { label: "Email",          value: order.email },
+    { label: "Amount Paid",    value: `$${order.orderTotal.toFixed(2)} ${order.currency}` },
+    { label: "Pass Type",      value: order.itemCategories },
+    { label: "Purchased Via",  value: order.source },
+    { label: "Purchased On",   value: fmtHuman(order.createdAt) },
+    { label: "Last Updated",   value: fmtHuman(order.updatedAt) },
   ];
+
+  // Conditional rows
+  if (order.deletedAt) {
+    detailRows.push({ label: "Deleted On", value: fmtHuman(order.deletedAt) });
+  }
+  if (order.originalTicketGroup) {
+    detailRows.push({ label: "Original Order", value: order.originalTicketGroup });
+  }
 
   return (
     <div>
       {toast && <Toast msg={toast.msg} type={toast.type} />}
       {showRefund   && <RefundModal   order={order} onClose={() => setShowRefund(false)}   onConfirm={handleRefund} />}
       {showTransfer && <TransferModal order={order} onClose={() => setShowTransfer(false)} onConfirm={handleTransfer} />}
+      {showRevoke   && <RevokeModal   order={order} onClose={() => setShowRevoke(false)}   onConfirm={handleRevoke} />}
 
       {/* Breadcrumb */}
       <nav className="text-xs text-slate-500 mb-5 flex gap-1.5 items-center flex-wrap">
@@ -470,6 +814,11 @@ const OrderDetail = ({ order: initial, onBack }) => {
           <h2 className="text-2xl font-black flex flex-wrap items-center gap-3">
             {order.firstName} {order.lastName}
             <StatusPill status={order.status} />
+            {accessRevoked && (
+              <span className="px-2.5 py-0.5 rounded text-[9px] font-black uppercase border border-amber-700 bg-amber-900/30 text-amber-400">
+                Access Revoked
+              </span>
+            )}
           </h2>
           <p className="text-slate-400 text-xs mt-1 font-mono">
             Order # <span className="text-orange-400">{order.orderNumber}</span>
@@ -485,7 +834,7 @@ const OrderDetail = ({ order: initial, onBack }) => {
             onClick={handleResend}
             className="flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-600 text-slate-300 hover:text-white hover:border-slate-400 text-sm font-bold transition"
           >
-            ✉️ Resend Email
+            Resend Email
           </button>
           {!isRefunded && (
             <>
@@ -493,54 +842,127 @@ const OrderDetail = ({ order: initial, onBack }) => {
                 onClick={() => setShowTransfer(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-700 text-blue-400 hover:bg-blue-900/20 text-sm font-bold transition"
               >
-                ↗ Transfer Pass
+                Transfer Pass
               </button>
+              {hasActiveAccess && (
+                <button
+                  onClick={() => setShowRevoke(true)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-700 text-amber-400 hover:bg-amber-900/20 text-sm font-bold transition"
+                >
+                  Revoke Access
+                </button>
+              )}
               <button
                 onClick={() => setShowRefund(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-700 text-red-400 hover:bg-red-900/20 text-sm font-bold transition"
               >
-                ↩ Process Refund
+                Process Refund
               </button>
             </>
           )}
           {isRefunded && (
             <span className="px-4 py-2 rounded-lg border border-slate-700 text-slate-600 text-sm font-bold italic">
-              Order Refunded — no further actions
+              Order Refunded
             </span>
           )}
         </div>
       </div>
 
-      {/* Two-column content */}
+      {/* Content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Order Details Table */}
-        <div className="card rounded-xl overflow-hidden">
-          <div className="bg-slate-800 px-4 py-3 border-b border-slate-700">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Order Details</h3>
+        {/* Left column */}
+        <div className="space-y-6">
+
+          {/* Event Information Card */}
+          <div className="card rounded-xl overflow-hidden">
+            <div className="bg-slate-800 px-4 py-3 border-b border-slate-700 flex justify-between items-center">
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Event Information</h3>
+              <EventStatusBadge status={order.eventStatus} />
+            </div>
+            <div className="p-4 space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Organization</span>
+                <span className="text-right font-semibold">{order.organization}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Event / Pass</span>
+                <span className="text-right font-semibold">{order.eventName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Date</span>
+                <span className="text-right">{fmtEventDate(order.eventDateStart, order.eventDateEnd)}</span>
+              </div>
+            </div>
           </div>
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="bg-slate-800/40 text-slate-500 uppercase text-[9px] font-black tracking-wider border-b border-slate-700/50">
-                <th className="px-4 py-2 text-left w-40">Property</th>
-                <th className="px-4 py-2 text-left">Value</th>
-                <th className="px-4 py-2 w-16"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60">
-              {rows.map(r => (
-                <tr key={r.label}>
-                  <td className="px-4 py-2 font-bold text-slate-300 whitespace-nowrap">{r.label}</td>
-                  <td className="px-4 py-2 text-slate-400 break-all">
-                    {r.link
-                      ? <a href={r.link} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">{r.value}</a>
-                      : r.value}
-                  </td>
-                  <td className="px-4 py-2 text-right"><CopyBtn text={r.value} /></td>
+
+          {/* Order Details Table */}
+          <div className="card rounded-xl overflow-hidden">
+            <div className="bg-slate-800 px-4 py-3 border-b border-slate-700">
+              <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-400">Order Details</h3>
+            </div>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="bg-slate-800/40 text-slate-500 uppercase text-[9px] font-black tracking-wider border-b border-slate-700/50">
+                  <th className="px-4 py-2 text-left w-40">Field</th>
+                  <th className="px-4 py-2 text-left">Value</th>
+                  <th className="px-4 py-2 w-16"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
+                {detailRows.map(r => (
+                  <tr key={r.label}>
+                    <td className="px-4 py-2 font-bold text-slate-300 whitespace-nowrap">{r.label}</td>
+                    <td className="px-4 py-2 text-slate-400 break-all">{r.value}</td>
+                    <td className="px-4 py-2 text-right"><CopyBtn text={String(r.value)} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Technical IDs collapsible */}
+            <div className="border-t border-slate-700/50">
+              <button
+                onClick={() => setShowTechIds(!showTechIds)}
+                className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-500 hover:text-slate-300 transition flex items-center gap-2"
+              >
+                <span className={`transition-transform inline-block ${showTechIds ? "rotate-180" : ""}`}>▾</span>
+                Technical IDs
+              </button>
+              {showTechIds && (
+                <table className="w-full text-xs">
+                  <tbody className="divide-y divide-slate-800/60">
+                    <tr>
+                      <td className="px-4 py-2 font-bold text-slate-500 whitespace-nowrap w-40">Order ID</td>
+                      <td className="px-4 py-2 text-slate-500 font-mono text-[10px] break-all">{order.id}</td>
+                      <td className="px-4 py-2 text-right w-16"><CopyBtn text={order.id} /></td>
+                    </tr>
+                    <tr>
+                      <td className="px-4 py-2 font-bold text-slate-500 whitespace-nowrap w-40">User ID</td>
+                      <td className="px-4 py-2 text-slate-500 font-mono text-[10px]">
+                        <a href={`https://admin.hudl.com/user/${order.userId}`} target="_blank" rel="noreferrer" className="text-blue-400/70 hover:underline">{order.userId}</a>
+                      </td>
+                      <td className="px-4 py-2 text-right w-16"><CopyBtn text={order.userId} /></td>
+                    </tr>
+                    {order.passes.map((p, i) => (
+                      <tr key={p.passId}>
+                        <td className="px-4 py-2 font-bold text-slate-500 whitespace-nowrap w-40">Pass ID #{i + 1}</td>
+                        <td className="px-4 py-2 text-slate-500 font-mono text-[10px] break-all">{p.passId}</td>
+                        <td className="px-4 py-2 text-right w-16"><CopyBtn text={p.passId} /></td>
+                      </tr>
+                    ))}
+                    {order.passes.map((p, i) => (
+                      <tr key={`cfg-${p.passConfigId}`}>
+                        <td className="px-4 py-2 font-bold text-slate-500 whitespace-nowrap w-40">Pass Config #{i + 1}</td>
+                        <td className="px-4 py-2 text-slate-500 font-mono text-[10px] break-all">{p.passConfigId}</td>
+                        <td className="px-4 py-2 text-right w-16"><CopyBtn text={p.passConfigId} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Right column */}
@@ -560,6 +982,7 @@ const OrderDetail = ({ order: initial, onBack }) => {
                   <th className="px-4 py-2 text-left">Pass Id</th>
                   <th className="px-4 py-2 text-left">Source</th>
                   <th className="px-4 py-2 text-left">Reserved Seats</th>
+                  <th className="px-4 py-2 text-left">Access</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60">
@@ -570,6 +993,7 @@ const OrderDetail = ({ order: initial, onBack }) => {
                     </td>
                     <td className="px-4 py-2 text-slate-400">{p.source}</td>
                     <td className="px-4 py-2 text-slate-400">{p.reservedSeats || "—"}</td>
+                    <td className="px-4 py-2"><AccessBadge access={p.access} /></td>
                   </tr>
                 ))}
               </tbody>
@@ -589,8 +1013,8 @@ const OrderDetail = ({ order: initial, onBack }) => {
                   {order.transferHistory.map((t, i) => (
                     <div key={i} className="bg-slate-900/60 border border-slate-700/50 rounded-lg p-3 text-xs space-y-1">
                       <div className="flex justify-between items-center">
-                        <span className="font-black text-blue-400 uppercase tracking-wide">↗ {t.action}</span>
-                        <span className="text-slate-500">{fmt(t.date)}</span>
+                        <span className="font-black text-blue-400 uppercase tracking-wide">{t.action}</span>
+                        <span className="text-slate-500">{fmtHuman(t.date)}</span>
                       </div>
                       <div><span className="text-slate-500">From: </span><span className="text-slate-300">{t.from}</span></div>
                       <div><span className="text-slate-500">To: </span><span className="text-slate-300">{t.to}</span></div>
@@ -613,39 +1037,35 @@ const OrderDetail = ({ order: initial, onBack }) => {
 
 // ─── Main Search View ─────────────────────────────────────────────────────────
 const SearchView = ({ orders, onSelectOrder }) => {
-  const [tab, setTab] = useState("order");
-  const [orderInput, setOrderInput] = useState("");
-  const [textInput, setTextInput] = useState("");
-  const [dateInput, setDateInput] = useState("");
-  const [results, setResults] = useState(null);
+  const [searchText, setSearchText] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
 
-  const searchByOrder = () => {
-    const q = orderInput.trim().toLowerCase();
-    if (!q) return;
-    setResults(orders.filter(o => o.orderNumber.toLowerCase() === q));
-  };
+  const hasFilter = searchText.trim() !== "" || dateFilter !== "";
+  const q = searchText.trim().toLowerCase();
 
-  const searchByText = () => {
-    const q = textInput.trim().toLowerCase();
-    const d = dateInput;
-    if (!q && !d) return;
-    setResults(orders.filter(o => {
+  const filtered = orders
+    .filter(o => {
       const matchText = !q
         || o.firstName.toLowerCase().includes(q)
         || o.lastName.toLowerCase().includes(q)
         || `${o.firstName} ${o.lastName}`.toLowerCase().includes(q)
         || o.email.toLowerCase().includes(q)
-        || o.orderNumber.toLowerCase().includes(q);
-      const matchDate = !d || o.createdAt.startsWith(d);
+        || o.orderNumber.toLowerCase().includes(q)
+        || o.eventName.toLowerCase().includes(q)
+        || o.organization.toLowerCase().includes(q);
+      const matchDate = !dateFilter || o.createdAt.startsWith(dateFilter);
       return matchText && matchDate;
-    }));
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const clearFilters = () => {
+    setSearchText("");
+    setDateFilter("");
   };
 
-  const onKey = (e, fn) => { if (e.key === "Enter") fn(); };
-
-  const totalOrders   = orders.length;
-  const activeOrders  = orders.filter(o => o.status === "Active").length;
-  const refundedCount = orders.filter(o => o.status === "Refunded").length;
+  const feedLabel = hasFilter
+    ? `${filtered.length} result${filtered.length !== 1 ? "s" : ""} for '${q || dateFilter}'`
+    : `Recent Purchases — ${orders.length} orders`;
 
   return (
     <div>
@@ -664,173 +1084,88 @@ const SearchView = ({ orders, onSelectOrder }) => {
         </a>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="card p-5 rounded-xl">
-          <div className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Total Orders</div>
-          <div className="text-3xl font-black">{totalOrders}</div>
-        </div>
-        <div className="card p-5 rounded-xl">
-          <div className="text-green-500 text-[10px] font-black uppercase tracking-widest mb-1">Active Passes</div>
-          <div className="text-3xl font-black">{activeOrders}</div>
-        </div>
-        <div className="card p-5 rounded-xl">
-          <div className="text-red-400 text-[10px] font-black uppercase tracking-widest mb-1">Refunds Issued</div>
-          <div className="text-3xl font-black">{refundedCount}</div>
-        </div>
-      </div>
-
-      {/* Search Panel */}
-      <div className="card rounded-t-xl border-b-0">
-        <div className="flex border-b border-slate-700">
-          <button
-            onClick={() => { setTab("order"); setResults(null); }}
-            className={`px-6 py-4 text-sm font-bold transition border-b-2 -mb-px
-              ${tab === "order" ? "border-orange-500 text-orange-400" : "border-transparent text-slate-400 hover:text-white"}`}
-          >
-            🔍 Search by Order Number
-          </button>
-          <button
-            onClick={() => { setTab("text"); setResults(null); }}
-            className={`px-6 py-4 text-sm font-bold transition border-b-2 -mb-px
-              ${tab === "text" ? "border-orange-500 text-orange-400" : "border-transparent text-slate-400 hover:text-white"}`}
-          >
-            👤 Search by Name / Email / Date
-          </button>
-        </div>
-
-        <div className="p-6">
-          {tab === "order" ? (
-            <div>
-              <p className="text-[10px] text-slate-500 uppercase font-black tracking-wider mb-3">
-                Search ticket groups by an order number
-              </p>
-              <div className="flex gap-3 flex-wrap">
-                <input
-                  type="text"
-                  value={orderInput}
-                  onChange={e => setOrderInput(e.target.value)}
-                  onKeyDown={e => onKey(e, searchByOrder)}
-                  placeholder="e.g. gh4b4t24mxqe"
-                  className="flex-1 min-w-48 p-3 rounded-lg text-sm focus:border-orange-500 transition"
-                />
-                <button
-                  onClick={searchByOrder}
-                  className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-lg font-bold text-sm transition shadow-lg shadow-orange-900/20"
-                >
-                  Search by Order Number
-                </button>
-              </div>
-              <p className="text-[10px] text-slate-600 mt-2">
-                Try: <button onClick={() => { setOrderInput("gh4b4t24mxqe"); }} className="text-slate-500 hover:text-orange-400 font-mono transition">gh4b4t24mxqe</button>
-                &nbsp;·&nbsp;
-                <button onClick={() => { setOrderInput("xy9z8w76vuqr"); }} className="text-slate-500 hover:text-orange-400 font-mono transition">xy9z8w76vuqr</button>
-                &nbsp;·&nbsp;
-                <button onClick={() => { setOrderInput("ab1c2d34efgh"); }} className="text-slate-500 hover:text-orange-400 font-mono transition">ab1c2d34efgh</button>
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p className="text-[10px] text-slate-500 uppercase font-black tracking-wider mb-3">
-                Search ticket groups by name, email, or purchase date
-              </p>
-              <div className="flex gap-3 flex-wrap">
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={e => setTextInput(e.target.value)}
-                  onKeyDown={e => onKey(e, searchByText)}
-                  placeholder="Fan name or email address…"
-                  className="flex-1 min-w-56 p-3 rounded-lg text-sm focus:border-orange-500 transition"
-                />
-                <input
-                  type="date"
-                  value={dateInput}
-                  onChange={e => setDateInput(e.target.value)}
-                  className="p-3 rounded-lg text-sm focus:border-orange-500 transition w-44"
-                />
-                <button
-                  onClick={searchByText}
-                  className="bg-orange-600 hover:bg-orange-500 text-white px-6 py-3 rounded-lg font-bold text-sm transition shadow-lg shadow-orange-900/20"
-                >
-                  Search
-                </button>
-              </div>
-              <p className="text-[10px] text-slate-600 mt-2">
-                Try: <button onClick={() => setTextInput("janet")} className="text-slate-500 hover:text-orange-400 transition">janet</button>
-                &nbsp;·&nbsp;
-                <button onClick={() => setTextInput("gmail.com")} className="text-slate-500 hover:text-orange-400 transition">gmail.com</button>
-                &nbsp;·&nbsp;
-                <button onClick={() => setDateInput("2026-02-10")} className="text-slate-500 hover:text-orange-400 transition">2026-02-10</button>
-              </p>
-            </div>
+      {/* Search bar + date picker */}
+      <div className="card rounded-xl p-5 mb-6">
+        <div className="flex gap-3 flex-wrap items-center">
+          <div className="relative flex-1 min-w-64">
+            <span className="absolute left-3 top-3 text-slate-500">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </span>
+            <input
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              placeholder="Search by name, email, order number, event, or organization…"
+              className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm focus:border-orange-500 transition"
+            />
+          </div>
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={e => setDateFilter(e.target.value)}
+            className="py-2.5 px-3 rounded-lg text-sm focus:border-orange-500 transition w-44"
+          />
+          {hasFilter && (
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2.5 rounded-lg border border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 text-sm font-bold transition"
+            >
+              Clear
+            </button>
           )}
         </div>
       </div>
 
-      {/* Results Table */}
-      {results !== null && (
-        <div className="card rounded-b-xl border-t border-slate-700/50 overflow-hidden">
-          {results.length === 0 ? (
-            <div className="p-10 text-center text-slate-500 text-sm">
-              <div className="text-4xl mb-3">🎟️</div>
-              <p className="font-bold text-slate-400 mb-1">No orders found</p>
-              <p className="text-xs">Double-check the order number or try a different search term.</p>
-            </div>
-          ) : (
-            <>
-              <div className="px-4 py-2 bg-slate-800/30 border-b border-slate-700/50 text-xs text-slate-500">
-                {results.length} result{results.length !== 1 ? "s" : ""} found
-              </div>
-              <table className="w-full text-sm">
-                <thead className="bg-slate-800/50 text-slate-400 uppercase text-[9px] font-black tracking-widest border-b border-slate-700">
-                  <tr>
-                    <th className="px-4 py-3 text-left">Order #</th>
-                    <th className="px-4 py-3 text-left">Fan Name</th>
-                    <th className="px-4 py-3 text-left">Email</th>
-                    <th className="px-4 py-3 text-left">Pass Type</th>
-                    <th className="px-4 py-3 text-left">Total</th>
-                    <th className="px-4 py-3 text-left">Purchased</th>
-                    <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {results.map(o => (
-                    <tr key={o.orderNumber}>
-                      <td className="px-4 py-3 font-mono text-orange-400 text-xs">{o.orderNumber}</td>
-                      <td className="px-4 py-3 font-bold whitespace-nowrap">{o.firstName} {o.lastName}</td>
-                      <td className="px-4 py-3 text-slate-400 text-xs">{o.email}</td>
-                      <td className="px-4 py-3 text-xs text-slate-300">{o.itemCategories}</td>
-                      <td className="px-4 py-3 font-mono font-bold text-xs">${o.orderTotal.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">{fmtDate(o.createdAt)}</td>
-                      <td className="px-4 py-3"><StatusPill status={o.status} /></td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => onSelectOrder(o)}
-                          className="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-bold transition"
-                        >
-                          View Details →
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </>
-          )}
+      {/* Live Feed */}
+      <div className="card rounded-xl overflow-hidden">
+        <div className="px-4 py-3 bg-slate-800/50 border-b border-slate-700/50 text-xs text-slate-400 font-semibold">
+          {feedLabel}
         </div>
-      )}
+
+        {filtered.length === 0 ? (
+          <div className="p-10 text-center text-slate-500 text-sm">
+            <div className="text-4xl mb-3">🎟️</div>
+            <p className="font-bold text-slate-400 mb-1">No orders found</p>
+            <p className="text-xs">Try a different search term or clear your filters.</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-slate-800/50 text-slate-400 uppercase text-[9px] font-black tracking-widest border-b border-slate-700">
+              <tr>
+                <th className="px-4 py-3 text-left">Order #</th>
+                <th className="px-4 py-3 text-left">Fan Name</th>
+                <th className="px-4 py-3 text-left">Email</th>
+                <th className="px-4 py-3 text-left">Event</th>
+                <th className="px-4 py-3 text-left">Total</th>
+                <th className="px-4 py-3 text-left">Purchased</th>
+                <th className="px-4 py-3 text-left">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800">
+              {filtered.map(o => (
+                <tr key={o.orderNumber} className="clickable-row" onClick={() => onSelectOrder(o)}>
+                  <td className="px-4 py-3 font-mono text-orange-400 text-xs">{o.orderNumber}</td>
+                  <td className="px-4 py-3 font-bold whitespace-nowrap">{o.firstName} {o.lastName}</td>
+                  <td className="px-4 py-3 text-slate-400 text-xs">{o.email}</td>
+                  <td className="px-4 py-3 text-xs text-slate-300 max-w-48 truncate" title={o.eventName}>{o.eventName}</td>
+                  <td className="px-4 py-3 font-mono font-bold text-xs">${o.orderTotal.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">{fmtDateShort(o.createdAt)}</td>
+                  <td className="px-4 py-3"><StatusPill status={o.status} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };
 
 // ─── App Root ─────────────────────────────────────────────────────────────────
 const App = () => {
-  const [orders, setOrders] = useState(MOCK_ORDERS);
+  const [orders] = useState(MOCK_ORDERS);
   const [selected, setSelected] = useState(null);
 
-  // Keep the search view's order list in sync when an order detail mutates it
   const handleSelectOrder = (order) => setSelected(order);
   const handleBack = () => setSelected(null);
 
